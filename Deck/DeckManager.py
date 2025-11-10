@@ -145,7 +145,15 @@ class DeckManager:
     #   Add each created Card to a list called 'deck' and return the completed list at the end.
     def createDeck(self, subLevel: SubLevel = None):
         cardImages = self.load_card_images(subLevel)
+
+
         deck = []
+        for suit in Suit:
+            for rank in Rank:
+                image = cardImages[(suit, rank)]
+                if image:
+                    card = Card(suit,rank,image)
+                    deck.append(card)
         return deck
 
     # TODO (TASK 5.1): Complete the priceMap variable by assigning each joker a price.
