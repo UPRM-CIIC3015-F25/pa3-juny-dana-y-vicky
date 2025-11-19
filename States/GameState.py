@@ -554,7 +554,44 @@ class GameState(State):
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
     def SortCards(self, sort_by: str = "suit"):
-        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]         # Define the order of suits
+        # Orden fijo de suits de menor a mayor (puedes invertir si quieres otra prioridad)
+        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
+
+        # --- Función auxiliar para decidir si cardA "va antes" que cardB ---
+        # Para mayor a menor, cardA va antes si su valor es mayor
+        def goes_before(cardA, cardB):
+            if sort_by == "suit":
+                suitA = suitOrder.index(cardA.suit)
+                suitB = suitOrder.index(cardB.suit)
+
+                if suitA > suitB:  # invertido para mayor suit primero
+                    return True
+                if suitA < suitB:
+                    return False
+
+                # Si mismos suits, comparar por rank
+                return cardA.rank.value > cardB.rank.value
+
+            else:  # sort_by == "rank"
+                if cardA.rank.value > cardB.rank.value:  # mayor rank primero
+                    return True
+                if cardA.rank.value < cardB.rank.value:
+                    return False
+
+                # Si mismos ranks, comparar por suit
+                suitA = suitOrder.index(cardA.suit)
+                suitB = suitOrder.index(cardB.suit)
+                return suitA > suitB  # mayor suit primero
+
+        # --- Bubble Sort básico ---
+        cards_list = self.hand  # usar la lista de cartas del jugador
+        n = len(cards_list)
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                if not goes_before(cards_list[i], cards_list[j]):
+                    cards_list[i], cards_list[j] = cards_list[j], cards_list[i]
+
+        # Actualizar visualmente las posiciones
         self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 
     def checkHoverCards(self):
