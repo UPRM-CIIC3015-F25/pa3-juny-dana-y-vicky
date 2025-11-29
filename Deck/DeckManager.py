@@ -163,6 +163,16 @@ class DeckManager:
         deckJokers = []
 
         priceMap = {
+            "Fibonacci": 8,
+            "Michael Myers": 12,
+            "? Block": 8,
+            "Hogwarts": 14,
+            "StrawHat": 9,
+            "802": 10,
+            "Ogre": 7,
+            "Hog Rider": 10,
+            "Gauntlet": 17,
+            "The Joker": 20
         }
 
         for name, image in jokerImages.items():
