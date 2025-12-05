@@ -24,6 +24,7 @@ class GameState(State):
         super().__init__(nextState)
         # ----------------------------Deck and Hand initialization----------------------------
         self.playerInfo = player # playerInfo object
+        self.last_total_score_for_reward = 0
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
         self.cards = {}
@@ -204,6 +205,7 @@ class GameState(State):
                 # Commit pending round addition and reset displayed chips/multiplier
                 if getattr(self, "pending_round_add", 0) > 0:
                     self.playerInfo.roundScore += self.pending_round_add
+                    self.last_total_score_for_reward = self.playerInfo.roundScore
                     self.pending_round_add = 0
                 self.playerInfo.playerChips = 0
                 self.playerInfo.playerMultiplier = 0
@@ -534,8 +536,32 @@ class GameState(State):
     #     - Recursive calculation of the overkill bonus (based on how much score exceeds the target)
     #     - A clear base case to stop recursion when all parts are done
     #   Avoid any for/while loops — recursion alone must handle the repetition.
-    def calculate_gold_reward(self, playerInfo, stage=0):
-            return 0
+    def calculate_gold_reward(self, playerInfo, stage=0, gold_reward = 0, bonus = 0):
+        curSub = self.playerInfo.levelManager.curSubLevel
+        target = playerInfo.levelManager.curSubLevel.score
+        total_score = total_score = getattr(self, "last_total_score_for_reward", playerInfo.roundScore)
+        if stage == 0:
+            if curSub.blind.name == "SMALL":
+                gold_reward = 4
+            elif curSub.blind.name == "BIG":
+                gold_reward = 8
+            else:
+                gold_reward = 10
+
+            return self.calculate_gold_reward(playerInfo, stage=1, gold_reward=gold_reward, bonus=0)
+
+        if stage == 1:
+
+            if total_score <= target:
+                bonus = 0
+                return self.calculate_gold_reward(playerInfo, stage=2, gold_reward=gold_reward, bonus=bonus)
+
+            bonus = round(min(5, max(0, (total_score - target) / target * 5)))
+            return self.calculate_gold_reward(playerInfo, stage=2, gold_reward=gold_reward, bonus=bonus)
+
+        if stage == 2:
+            return gold_reward + bonus
+
 
     def updateCards(self, posX, posY, cardsDict, cardsList, scale=1.5, spacing=90, baseYOffset=-20, leftShift=40):
         cardsDict.clear()
