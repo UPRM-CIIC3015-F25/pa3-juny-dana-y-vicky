@@ -818,6 +818,7 @@ class GameState(State):
         #       self.activated_jokers.add("joker card name")
         #   The last line ensures the Joker is visibly active and its effects are properly applied.
         procrastinate = False
+        added_to_round = total_chips * hand_mult
 
         if "The Joker" in owned:
             hand_mult += 4
@@ -866,14 +867,14 @@ class GameState(State):
             added_to_round *= 2
             self.activated_jokers.add("802")
 
-        # commit modified player multiplier and chips
+
         self.playerInfo.playerMultiplier = hand_mult
         self.playerInfo.playerChips = total_chips
         self.playerInfo.curHandOfPlayer = hand_name
         self.playerInfo.curHandText = self.playerInfo.textFont1.render(self.playerInfo.curHandOfPlayer, False, 'white')
 
-        # compute amount that will be added to round when timer expires
-        added_to_round = total_chips * hand_mult
+        s
+
         # Procrastination doubles the final hand's addition
         if 'procrastinate' in locals() and procrastinate:
             added_to_round *= 2
