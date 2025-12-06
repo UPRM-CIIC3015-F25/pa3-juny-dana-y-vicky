@@ -24,6 +24,7 @@ class GameState(State):
         super().__init__(nextState)
         # ----------------------------Deck and Hand initialization----------------------------
         self.playerInfo = player # playerInfo object
+        self.last_total_score_for_reward = 0
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
         self.cards = {}
@@ -204,7 +205,18 @@ class GameState(State):
                 # Commit pending round addition and reset displayed chips/multiplier
                 if getattr(self, "pending_round_add", 0) > 0:
                     self.playerInfo.roundScore += self.pending_round_add
+                    self.last_total_score_for_reward = self.playerInfo.roundScore
                     self.pending_round_add = 0
+                    for card in self.cardsSelectedList:
+                        if card in self.hand:
+                            self.hand.remove(card)
+                        if card in self.cards:
+                            self.cards.pop(card)
+                        if card in self.cardsSelectedRect:
+                            del self.cardsSelectedRect[card]
+
+                    # --- ACTUALIZAR VISUAL DE LA MANO ---
+                    self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
                 self.playerInfo.playerChips = 0
                 self.playerInfo.playerMultiplier = 0
 
@@ -534,8 +546,32 @@ class GameState(State):
     #     - Recursive calculation of the overkill bonus (based on how much score exceeds the target)
     #     - A clear base case to stop recursion when all parts are done
     #   Avoid any for/while loops — recursion alone must handle the repetition.
-    def calculate_gold_reward(self, playerInfo, stage=0):
-            return 0
+    def calculate_gold_reward(self, playerInfo, stage=0, gold_reward = 0, bonus = 0):
+        curSub = self.playerInfo.levelManager.curSubLevel
+        target = playerInfo.levelManager.curSubLevel.score
+        total_score = total_score = getattr(self, "last_total_score_for_reward", playerInfo.roundScore)
+        if stage == 0:
+            if curSub.blind.name == "SMALL":
+                gold_reward = 4
+            elif curSub.blind.name == "BIG":
+                gold_reward = 8
+            else:
+                gold_reward = 10
+
+            return self.calculate_gold_reward(playerInfo, stage=1, gold_reward=gold_reward, bonus=0)
+
+        if stage == 1:
+
+            if total_score <= target:
+                bonus = 0
+                return self.calculate_gold_reward(playerInfo, stage=2, gold_reward=gold_reward, bonus=bonus)
+
+            bonus = round(min(5, max(0, (total_score - target) / target * 5)))
+            return self.calculate_gold_reward(playerInfo, stage=2, gold_reward=gold_reward, bonus=bonus)
+
+        if stage == 2:
+            return gold_reward + bonus
+
 
     def updateCards(self, posX, posY, cardsDict, cardsList, scale=1.5, spacing=90, baseYOffset=-20, leftShift=40):
         cardsDict.clear()
@@ -554,44 +590,38 @@ class GameState(State):
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
     def SortCards(self, sort_by: str = "suit"):
-        # Orden fijo de suits de menor a mayor (puedes invertir si quieres otra prioridad)
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
-
-        # --- Función auxiliar para decidir si cardA "va antes" que cardB ---
-        # Para mayor a menor, cardA va antes si su valor es mayor
         def goes_before(cardA, cardB):
             if sort_by == "suit":
                 suitA = suitOrder.index(cardA.suit)
                 suitB = suitOrder.index(cardB.suit)
 
-                if suitA > suitB:  # invertido para mayor suit primero
+                if suitA > suitB:
                     return True
                 if suitA < suitB:
                     return False
 
-                # Si mismos suits, comparar por rank
+
                 return cardA.rank.value > cardB.rank.value
 
-            else:  # sort_by == "rank"
-                if cardA.rank.value > cardB.rank.value:  # mayor rank primero
+            else:
+                if cardA.rank.value > cardB.rank.value:
                     return True
                 if cardA.rank.value < cardB.rank.value:
                     return False
 
-                # Si mismos ranks, comparar por suit
+
                 suitA = suitOrder.index(cardA.suit)
                 suitB = suitOrder.index(cardB.suit)
-                return suitA > suitB  # mayor suit primero
+                return suitA > suitB
 
-        # --- Bubble Sort básico ---
-        cards_list = self.hand  # usar la lista de cartas del jugador
+
+        cards_list = self.hand
         n = len(cards_list)
         for i in range(n - 1):
             for j in range(i + 1, n):
                 if not goes_before(cards_list[i], cards_list[j]):
                     cards_list[i], cards_list[j] = cards_list[j], cards_list[i]
-
-        # Actualizar visualmente las posiciones
         self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 
     def checkHoverCards(self):
@@ -864,7 +894,7 @@ class GameState(State):
             self.activated_jokers.add("Hogwarts")
 
         if "802" in owned and self.playerInfo.amountOfHands == 0:
-            added_to_round *= 2
+            self.pending_round_add *= 2
             self.activated_jokers.add("802")
 
 
