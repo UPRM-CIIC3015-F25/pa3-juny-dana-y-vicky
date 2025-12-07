@@ -36,6 +36,15 @@ class RunInfoState(State):
             "High Card": [5, 1, 0, 1],
             "Back": []
         }
+        for hand, values in HAND_SCORES.items():
+            chips = values["chips"]
+            mult = values["multiplier"]
+            level = values["level"]
+
+            self.labels[hand][0] = chips
+            self.labels[hand][1] = mult
+            self.labels[hand][3] = level
+
         # descriptions for each playable hand
         self.handDescriptions = [
             "5 Cards in a row (consecutive ranks) all sharing the same suit.",

@@ -106,8 +106,8 @@ class ShopState(State):
                 hand_data["level"] += 1
                 continue
 
-            if planet.description.startswith("levels up"):
-                upgrade_target = planet.description.replace("levels up", "").strip()
+            if planet.description.startswith("Levels up"):
+                upgrade_target = planet.description.replace("Levels up", "").strip()
 
                 if hand_name == upgrade_target:
                     hand_data["chips"] += planet.chip_bonus
