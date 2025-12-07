@@ -12,12 +12,12 @@ class PlayerInfo(State):
         self.playerMultiplier = 0           # Current score multiplier
         self.amountOfHands = 4              # Default number of hands
         self.amountOfDiscards = 4           # Default number of discards
+        self.handSize = 8
         self.playerMoney = 0                # Current money
         self.playerAnte = 1                 # Current ante
         self.round = 1                      # Current round
         self.curHandOfPlayer = ""           # Current hand of the player
         self.curAmountJoker = "0"           # Current number of jokers used
-        
         # ----------------------------Level System--------------------------------------------
         self.levelManager = LevelManager(self)  # Must be after playerAnte is set ( DO NOT TOUCH THIS LINE )
         self.score = self.levelManager.curSubLevel.score  # Target score from current level

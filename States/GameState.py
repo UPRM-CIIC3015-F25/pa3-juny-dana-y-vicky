@@ -26,7 +26,7 @@ class GameState(State):
         self.playerInfo = player # playerInfo object
         self.last_total_score_for_reward = 0
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
-        self.hand = State.deckManager.dealCards(self.deck, 8)
+        self.hand = State.deckManager.dealCards(self.deck, self.playerInfo.handSize)
         self.cards = {}
         
         self.jokerDeck = State.deckManager.createJokerDeck()
@@ -160,7 +160,7 @@ class GameState(State):
         # Check if we need to reset deck (coming back from LevelSelectState)
         if self.deckManager.resetDeck:
             self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
-            self.hand = State.deckManager.dealCards(self.deck, 8, self.playerInfo.levelManager.next_unfinished_sublevel())
+            self.hand = State.deckManager.dealCards(self.deck, self.playerInfo.handSize, self.playerInfo.levelManager.next_unfinished_sublevel())
             self.used = []
             self.cardsSelectedList = []
             self.cardsSelectedRect = {}
@@ -183,7 +183,7 @@ class GameState(State):
             State.player_info = self.playerInfo
             self.isFinished = True
             self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
-            self.hand = State.deckManager.dealCards(self.deck, 8, self.playerInfo.levelManager.next_unfinished_sublevel())
+            self.hand = State.deckManager.dealCards(self.deck, self.playerInfo.handSize, self.playerInfo.levelManager.next_unfinished_sublevel())
             self.playerInfo.amountOfHands = 4
             self.nextState = "ShopState"
 
@@ -660,7 +660,7 @@ class GameState(State):
     
     # -------- Play Hand Logic -----------
     def playHand(self):
-        if self.playerInfo.amountOfHands == 0: # Check if last hand and failed the round
+        if self.playerInfo.amountOfHands <= 0: # Check if last hand and failed the round
             target_score = self.playerInfo.levelManager.curSubLevel.score
             if self.playerInfo.roundScore < target_score:
                 pygame.mixer.music.stop()
@@ -867,7 +867,7 @@ class GameState(State):
 
         if "Gauntlet" in owned:
             total_chips += 250
-            self.playerInfo.amountOfHands = max(0, self.playerInfo.amountOfHands - 2)
+            self.playerInfo.handSize -= 2
             self.activated_jokers.add("Gauntlet")
 
         if "Ogre" in owned:
@@ -903,7 +903,7 @@ class GameState(State):
         self.playerInfo.curHandOfPlayer = hand_name
         self.playerInfo.curHandText = self.playerInfo.textFont1.render(self.playerInfo.curHandOfPlayer, False, 'white')
 
-        s
+
 
         # Procrastination doubles the final hand's addition
         if 'procrastinate' in locals() and procrastinate:
@@ -936,7 +936,7 @@ class GameState(State):
 
         if not self._cards_to_discard:
             def refill_hand():
-                if len(self.hand) >= 8:
+                if len(self.hand) >= self.playerInfo.handSize:
                     return
                 new_card = self.deck.pop(0)
                 self.hand.append(new_card)

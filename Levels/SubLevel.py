@@ -2,9 +2,9 @@ import pygame
 from enum import Enum
 
 class Blind(Enum): # Base score values for each blind type
-    SMALL = 300
-    BIG = 600
-    BOSS = 900
+    SMALL = 3
+    BIG = 6
+    BOSS = 9
     NONE = 0
 
 class SubLevel():

@@ -1,4 +1,6 @@
 import pygame
+
+from Cards.Card import Rank
 from Deck.DeckManager import DeckManager
 from States.Core.StateClass import State
 from States.Core.PlayerInfo import PlayerInfo
@@ -90,9 +92,15 @@ class LevelSelectState(State):
                 #   on which boss is active.
                 #   Finally, make sure to reset the player’s round score to 0 at the end of this setup.
                 #   Avoid unnecessary repetition—use clear condition structure to make the logic readable.
-
+                curSub = self.playerInfo.levelManager.curSubLevel
+                self.playerInfo.handSize = 8
+                if curSub.bossLevel == "The Needle":
+                    self.playerInfo.amountOfHands = 1
+                if curSub.bossLevel == "The Water":
+                    self.playerInfo.amountOfDiscards = 0
+                if curSub.bossLevel == "The Manacle":
+                    self.playerInfo.handSize -= 1
                 self.playerInfo.roundScore = 0
-                
                 # Set target score for the new sublevel
                 self.playerInfo.score = self.playerInfo.levelManager.curSubLevel.score
                 
