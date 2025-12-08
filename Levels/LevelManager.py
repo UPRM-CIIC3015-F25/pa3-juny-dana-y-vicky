@@ -19,7 +19,7 @@ class LevelManager():
     # TODO (TASK 0) - Set up all levels and their corresponding sublevels.
     #   Each level should include a Small, Big, and Boss Blind, with Boss Blinds assigned unique names.
     #   Organize them in a dictionary structure where each key represents a level number.
-    def setUpLevels(self): # Sets up all levels and sublevels
+    def setUpLevels(self): # Sets up all levels and sublevel
         self.levelsDict[1] = [SubLevel(Blind.SMALL, 1), SubLevel(Blind.BIG, 1), SubLevel(Blind.BOSS, 1, "The Water")]
         self.levelsDict[2] = [SubLevel(Blind.SMALL, 2), SubLevel(Blind.BIG, 2), SubLevel(Blind.BOSS, 2, "The Mark")]
         self.levelsDict[3] = [SubLevel(Blind.SMALL, 3), SubLevel(Blind.BIG, 3), SubLevel(Blind.BOSS, 3, "The House")]
