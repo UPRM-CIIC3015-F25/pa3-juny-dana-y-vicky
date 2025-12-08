@@ -399,18 +399,23 @@ class ShopState(State):
                     price = joker_obj.price
                 else:
                     price = None
-                if price is None or price < 4 or price == 12:
-                    if price:
+                # Planet cards upgrade HAND_SCORES directly; they don't occupy joker slots
+                if isinstance(joker_obj, PlanetCard):
+                    if price is None:
+                        print("[SHOP] planet price missing; cannot purchase")
+                        return
+                    if self.playerInfo.playerMoney >= price:
                         self.playerInfo.playerMoney -= price
                         self.buy_sound.play()
-                    if joker_obj in self.shop_random_jokers:
-                        self.shop_random_jokers.remove(joker_obj)
+                        if joker_obj in self.shop_random_jokers:
+                            self.shop_random_jokers.remove(joker_obj)
+                        else:
+                            print(f"[SHOP] buy: {joker_obj.name} not present when activating")
+                        self.activatePlanet(joker_obj)
+                        if joker_obj.name:
+                            self.removed_offers.add(joker_obj.name)
                     else:
-                        print(f"[SHOP] buy: {joker_obj.name} not present when activating")
-                    self.activatePlanet(joker_obj)
-                    if joker_obj is not None and joker_obj.name:
-                        self.removed_offers.add(joker_obj.name)
-                    
+                        print(f"[SHOP] buy: not enough money for planet {joker_obj.name} (price={price}, money={self.playerInfo.playerMoney})")
                 else:
                     if self.playerInfo.playerMoney >= price and len(self.game_state.playerJokers) < 2:
                         self.game_state.playerJokers.append(joker_obj.name)

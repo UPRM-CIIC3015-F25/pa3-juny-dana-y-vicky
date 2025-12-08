@@ -38,7 +38,7 @@ PLANETS = {
     ),
     "Venus": PlanetCard(
         "Venus",
-        "Levels up Pair",
+        "Levels up One Pair",
         4,
         12,
         1
