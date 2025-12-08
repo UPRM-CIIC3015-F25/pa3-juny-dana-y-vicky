@@ -96,19 +96,7 @@ class ShopState(State):
     # TODO (TASK 6.2): Implement the HAND_SCORES dictionary to define all poker hand types and their base stats.
     #   Each key should be the name of a hand (e.g., "Two Pair", "Straight"), and each value should be a dictionary
     #   containing its "chips", "multiplier", and "level" fields.
-    #   Remember: the Sun upgrades all hands, while other planets upgrade only their specific one.
-    HAND_SCORES = {
-        "High Card": {"chips": 5, "multiplier": 1, "level": 1},
-        "One Pair": {"chips": 10, "multiplier": 2, "level": 1},
-        "Two Pair": {"chips": 20, "multiplier": 2, "level": 1},
-        "Three of a Kind": {"chips": 30, "multiplier": 3, "level": 1},
-        "Straight": {"chips": 40, "multiplier": 4, "level": 1},
-        "Flush": {"chips": 50, "multiplier": 4, "level": 1},
-        "Full House": {"chips": 60, "multiplier": 5, "level": 1},
-        "Four of a Kind": {"chips": 80, "multiplier": 7, "level": 1},
-        "Straight Flush": {"chips": 100, "multiplier": 8, "level": 1},
-    }
-
+    #   Remember: the Sun upgrades all hands, while other planets upgrade only their
     def activatePlanet(self, planet):
             for hand_name, hand_data in HAND_SCORES.items():
                 if planet.name != "Sun":
