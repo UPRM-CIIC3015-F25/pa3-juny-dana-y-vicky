@@ -97,23 +97,31 @@ class ShopState(State):
     #   Each key should be the name of a hand (e.g., "Two Pair", "Straight"), and each value should be a dictionary
     #   containing its "chips", "multiplier", and "level" fields.
     #   Remember: the Sun upgrades all hands, while other planets upgrade only their specific one.
+    HAND_SCORES = {
+        "High Card": {"chips": 5, "multiplier": 1, "level": 1},
+        "One Pair": {"chips": 10, "multiplier": 2, "level": 1},
+        "Two Pair": {"chips": 20, "multiplier": 2, "level": 1},
+        "Three of a Kind": {"chips": 30, "multiplier": 3, "level": 1},
+        "Straight": {"chips": 40, "multiplier": 4, "level": 1},
+        "Flush": {"chips": 50, "multiplier": 4, "level": 1},
+        "Full House": {"chips": 60, "multiplier": 5, "level": 1},
+        "Four of a Kind": {"chips": 80, "multiplier": 7, "level": 1},
+        "Straight Flush": {"chips": 100, "multiplier": 8, "level": 1},
+    }
+
     def activatePlanet(self, planet):
-        planet_info = PLANETS[planet]
-        for hand_name, hand_data in HAND_SCORES.items():
+            for hand_name, hand_data in HAND_SCORES.items():
+                if planet.name != "Sun":
+                    if hand_name in planet.description:
+                        hand_data["chips"] += planet.chips
+                        hand_data["multiplier"] += planet.mult
+                        hand_data["level"] += 1
+                        break
+                else:
+                    hand_data["chips"] += planet.chips
+                    hand_data["multiplier"] += planet.mult
+                    hand_data["level"] += 1
 
-            if planet == "Sun":
-                hand_data["chips"] += planet_info["chips"]
-                hand_data["multiplier"] += planet_info["multiplier"]
-                hand_data["level"] += planet_info["level"]
-                continue
-
-
-            if hand_name == planet_info["hand"]:
-                hand_data["chips"] += planet_info["chips"]
-                hand_data["multiplier"] += planet_info["multiplier"]
-                hand_data["level"] += planet_info["level"]
-
-                break
     # ---------- Helpers ----------
     def _wrap_lines(self, text, font, max_width):
         words = text.split()
