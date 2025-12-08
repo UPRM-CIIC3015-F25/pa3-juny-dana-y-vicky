@@ -91,5 +91,12 @@ PLANETS = {
         10,
         35,
         6
+    ),
+    "Sun": PlanetCard(
+        "Sun",
+        "Levels up all",
+        12,
+        60,
+        6
     )
 }
