@@ -903,8 +903,6 @@ class GameState(State):
         self.playerInfo.curHandOfPlayer = hand_name
         self.playerInfo.curHandText = self.playerInfo.textFont1.render(self.playerInfo.curHandOfPlayer, False, 'white')
 
-        s
-
         # Procrastination doubles the final hand's addition
         if 'procrastinate' in locals() and procrastinate:
             added_to_round *= 2
