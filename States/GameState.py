@@ -1,4 +1,4 @@
-import pygame
+﻿import pygame
 import random
 from States.Menus.DebugState import DebugState
 from States.Core.StateClass import State
@@ -928,37 +928,39 @@ class GameState(State):
     #   iterations (no for/while loops) — the recursion itself must handle repetition. After the
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
-    def discardCards(self, removeFromHand: bool):
+    def discardCards(self, removeFromHand: bool, card_to_remove=None, hand_index: int = 0, refilling: bool = False):
         if not hasattr(self, '_cards_to_discard'):
             self._cards_to_discard = self.cardsSelectedList.copy()
 
-        if not self._cards_to_discard:
-            def refill_hand():
-                if len(self.hand) >= 8:
-                    return
-                new_card = self.deck.pop(0)
-                self.hand.append(new_card)
+        if card_to_remove is None and self._cards_to_discard:
+            card_to_remove = self._cards_to_discard.pop(0)
+            hand_index = 0
+
+        if card_to_remove is not None and removeFromHand:
+            if hand_index >= len(self.hand):
                 self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
-                refill_hand()
+                return self.discardCards(removeFromHand)
+            current = self.hand[hand_index]
+            if current.rank == card_to_remove.rank and current.suit == card_to_remove.suit:
+                self.hand.pop(hand_index)
+                self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+                return self.discardCards(removeFromHand)
+            return self.discardCards(removeFromHand, card_to_remove, hand_index + 1)
 
-            refill_hand()
-
-            # Limpiar selección y actualización visual
-            self.cardsSelectedList.clear()
-            if hasattr(self, '_cards_to_discard'):
-                del self._cards_to_discard
+        if card_to_remove is not None and not removeFromHand:
             self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
-            return
+            return self.discardCards(removeFromHand)
 
-        card_to_remove = self._cards_to_discard.pop(0)
+        if len(self.hand) < 8 and len(self.deck) > 0:
+            self.hand.append(self.deck.pop(0))
+            self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+            return self.discardCards(removeFromHand, refilling=True)
 
-        if removeFromHand:
-            for c in self.hand:
-                if c.rank == card_to_remove.rank and c.suit == card_to_remove.suit:
-                    self.hand.remove(c)
-                    break
-
+        self.cardsSelectedList.clear()
+        self.cardsSelectedRect.clear()
+        if hasattr(self, '_cards_to_discard'):
+            del self._cards_to_discard
+        self.playerInfo.curHandOfPlayer = ""
+        self.playerInfo.curHandText = self.playerInfo.textFont1.render("", False, 'white')
         self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
-
-        self.discardCards(removeFromHand)
 
